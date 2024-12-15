@@ -3,7 +3,7 @@
 //
 // This work is licensed under the terms of the MIT license.
 // For a copy, see <https://opensource.org/licenses/MIT>.
-
+//引入头文件
 #include "Carla.h"
 #include "Carla/Game/CarlaEngine.h"
 
@@ -33,7 +33,7 @@
 #include <thread>
 
 // =============================================================================
-// -- Static local methods -----------------------------------------------------
+// --静态局部方法-----------------------------------------------------
 // =============================================================================
 
 // 初始化静态变量
@@ -79,19 +79,20 @@ FCarlaEngine::~FCarlaEngine()
 
 void FCarlaEngine::NotifyInitGame(const UCarlaSettings &Settings)
 {
-  TRACE_CPUPROFILER_EVENT_SCOPE_STR(__FUNCTION__);
+  TRACE_CPUPROFILER_EVENT_SCOPE_STR(__FUNCTION__);//用于追踪 CPU 性能分析的事件范围
+  //引擎运行状态检查及相关变量初始化
   if (!bIsRunning)
   {
     const auto StreamingPort = Settings.StreamingPort;
     const auto SecondaryPort = Settings.SecondaryPort;
     const auto PrimaryIP     = Settings.PrimaryIP;
     const auto PrimaryPort   = Settings.PrimaryPort;
-
+//服务器启动与异步运行相关操作
     auto BroadcastStream     = Server.Start(Settings.RPCPort, StreamingPort, SecondaryPort);
     Server.AsyncRun(FCarlaEngine_GetNumberOfThreadsForRPCServer());
 
     WorldObserver.SetStream(BroadcastStream);
-
+//委托绑定操作
     OnPreTickHandle = FWorldDelegates::OnWorldTickStart.AddRaw(
         this,
         &FCarlaEngine::OnPreTick);
